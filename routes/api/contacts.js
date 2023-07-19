@@ -1,13 +1,10 @@
 import express from 'express'
 import todoActions from '../../models/contacts.js'
-import Joi from 'joi'
+import schems from '../../schemas/validateBody.js'
+
+const {addSchema} = schems
 
 const router = express.Router()
-const addSchema = Joi.object({
-        name: Joi.string().required(),
-        email: Joi.string().required(),
-        phone: Joi.string().required(),
-})
 
 const HttpError = (status, message) => {
   const error = new Error(message)
