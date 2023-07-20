@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-const phoneNumberValid = /^\(\d{3}\) \d{3}-\d{4}$/
+const phoneNumberValid =/^\(\d{3}\) \d{3}-\d{4}$/
 
 
 const addSchema = Joi.object({
