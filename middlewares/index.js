@@ -1,11 +1,11 @@
 import isValidId from './isValidID.js'
-import HttpError from "./HttpError.js";
 import validateBody from './validateBody.js'
+import HttpError from './HttpError.js'
 
 const mw = {
     isValidId ,
-    HttpError,
     validateBody,
+    HttpError,
 }
 
 export default mw

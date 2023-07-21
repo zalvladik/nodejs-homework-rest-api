@@ -1,5 +1,3 @@
-import fs from 'fs/promises'
-import path from 'path'
 import { Schema, model } from 'mongoose';
 import handleMongooseError from '../helpers/handleMongooseError.js';
 import Joi from 'joi'
@@ -23,7 +21,7 @@ const contactSchema = new Schema({
   }
 },{versionKey: false})
 
-contactSchema.post("save",handleMongooseError)
+contactSchema.post( "save", handleMongooseError)
 
 const phoneNumberValid =/^\(\d{3}\) \d{3}-\d{4}$/
 
