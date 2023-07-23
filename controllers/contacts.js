@@ -1,9 +1,9 @@
 import { Contact } from '../models/contacts.js'
 
 const listContacts = async (req, res, next) => {
-  
   try {
-      const result = await Contact.find()
+        const {_id: owner} = req.user
+        const result = await Contact.find({owner})
 
     res.status(200).json(result)
     } catch (error) {
@@ -27,9 +27,9 @@ const getById = async (req, res, next) => {
 }
 
 const addContact = async (req, res, next) => {
-
   try {
-    const result = await Contact.create(req.body)
+    const {_id: owner} = req.user
+    const result = await Contact.create({...req.body, owner})
   
     res.status(201).json(result)
   } catch (error) {

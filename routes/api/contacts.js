@@ -1,45 +1,23 @@
-const express = require('express')
-
-const router = express.Router()
-
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
+import express from 'express'
 import ctrl from '../../controllers/contacts.js'
 import mw from '../../middlewares/index.js'
-import { addSchema } from '../../models/contacts.js'
-import express from 'express'
+import { joiContactSchema } from '../../models/contacts.js'
+
+const {authenticate, isValidId, validateBody} = mw
 
 const router = express.Router() 
 
-router.get('/', ctrl.listContacts) //✔️
+router.get('/', authenticate, ctrl.listContacts) //✔️
 
-router.get('/:contactId', mw.isValidId, ctrl.getById) //✔️
+router.get('/:contactId', authenticate, isValidId, ctrl.getById) //✔️
 
-router.post('/', mw.validateBody(addSchema), ctrl.addContact) //✔️
+router.post('/', authenticate, validateBody(joiContactSchema), ctrl.addContact) //✔️
 
-router.delete('/:contactId', mw.isValidId, ctrl.removeContact) //✔️
+router.delete('/:contactId', authenticate, isValidId, ctrl.removeContact) //✔️
 
-router.put('/:contactId', mw.validateBody(addSchema), ctrl.updateContact) //✔️
+router.put('/:contactId', authenticate, validateBody(joiContactSchema), ctrl.updateContact) //✔️
 
-router.patch('/:contactId/favorite', ctrl.updateContactFavorite) //✔️
+router.patch('/:contactId/favorite', authenticate, ctrl.updateContactFavorite) //✔️ 
 
 
 export default router
