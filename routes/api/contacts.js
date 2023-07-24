@@ -1,25 +1,23 @@
-const express = require('express')
+import express from 'express'
+import ctrl from '../../controllers/contacts.js'
+import mw from '../../middlewares/index.js'
+import { joiContactSchema } from '../../models/contacts.js'
 
-const router = express.Router()
+const {authenticate, isValidId, validateBody} = mw
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const router = express.Router() 
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get('/', authenticate, ctrl.listContacts) //✔️
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get('/:contactId', authenticate, isValidId, ctrl.getById) //✔️
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.post('/', authenticate, validateBody(joiContactSchema), ctrl.addContact) //✔️
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.delete('/:contactId', authenticate, isValidId, ctrl.removeContact) //✔️
 
-module.exports = router
+router.put('/:contactId', authenticate, validateBody(joiContactSchema), ctrl.updateContact) //✔️
+
+router.patch('/:contactId/favorite', authenticate, ctrl.updateContactFavorite) //✔️ 
+
+
+export default router
