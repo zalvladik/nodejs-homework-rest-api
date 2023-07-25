@@ -107,17 +107,16 @@ const updateAvatar = async (req , res) => {
         const filename = `${_id}_${originalname}`
         const resultUpload = path.join(avatarsDir, filename);
 
-        await Jimp.read(tempUpload)
-        .then((image) => { image.resize(250, 250)})
-        .catch((err) => { console.log(err) });
-
-        await fs.rename(tempUpload, resultUpload)
-        const avatarURL = path.join('avatars', filename)
+        const img = await Jimp.read(`./tmp/${originalname}`);
+        img.resize(250, 250);
+        img.writeAsync(`./tmp/${originalname}`);
+        await fs.rename(tempUpload, resultUpload); 
+        const avatarURL = path.join("avatars", filename)
         await Auth.findByIdAndUpdate(_id, {avatarURL})
 
         res.status(200).json({avatarURL})
     } catch (error) {
-        res.status(401).send({message: "Not authorized"})
+        res.status(401).send({message: "lmao"})
     }
 }
 
