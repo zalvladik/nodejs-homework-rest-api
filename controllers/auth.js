@@ -5,10 +5,14 @@ import gravatar from 'gravatar'
 import path from "path";
 import fs from 'fs/promises'
 import Jimp from "jimp";
+import { nanoid } from "nanoid";
+import sendEmail from "../helpers/sendEmail.js";
 
 const SECRET_KEY = '}.2oe2k>66PjUP8{sN)0kuaSk:QpYa'
 
 const avatarsDir = path.join('public', 'avatars')
+
+const {BASE_URL} = process.env
 
 const register = async (req, res, next) => {
    
@@ -22,8 +26,18 @@ const register = async (req, res, next) => {
       const salt = bcrypt.genSaltSync(10);
       const hashPassword = bcrypt.hashSync(password, salt)
       const avatarURL = gravatar.url(email)
+      const verificationToken = nanoid()
 
-      const newUser = await Auth.create({...req.body, password:hashPassword, avatarURL})
+      const newUser = await Auth.create({...req.body, password:hashPassword, avatarURL, verificationToken})
+
+      const verifyEmail ={
+        to: email,
+        subject: 'Verify email',
+        html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click verify email</a>`,
+      }
+
+      await sendEmail(verifyEmail)
+
       res.status(201).send({
         user:{
           email: newUser.email,
@@ -43,6 +57,10 @@ const login = async (req, res, next) => {
     const user = await Auth.findOne({email})
       if(!user){
         return res.status(401).send({ message: "Email or password invalid!" });
+      }
+
+      if(!user.verify){
+        return res.status(401).send({ message: "Email not verified" });
       }
     
     const passwordCompare = await bcrypt.compare(password, user.password)
@@ -116,8 +134,52 @@ const updateAvatar = async (req , res) => {
 
         res.status(200).json({avatarURL})
     } catch (error) {
-        res.status(401).send({message: "lmao"})
+        res.status(401).send({message: "Not authorized"})
     }
+}
+
+const verifyEmail = async (req, res) => {
+  try {
+    const { verificationToken } = req.params
+    const user = await Auth.find({verificationToken})
+
+    if(!user){
+      return res.status(400).send({message: 'User not found'})
+    }
+
+    await Auth.findByIdAndUpdate(user.id, {verify:true, verificationToken: ''})
+
+    return res.status(200).send({message: 'Verification successful'})
+  } catch (error) {
+      return res.status(400).send({message: 'User not found'})
+  }
+}
+
+const resendVerifyEmail = async (req, res) => {
+  try {
+    const {email} = req.body
+    const user = await Auth.find({email})
+
+    if(!user){
+      return res.status(401).send({message: 'User not found'})
+    }
+
+    if(user.verify){
+      return res.status(200).send({message: 'User already verify'})
+    }
+
+    const verifyEmail ={
+      to: email,
+      subject: 'Verify email',
+      html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${user.verificationToken}">Click verify email</a>`,
+    }
+
+    await sendEmail(verifyEmail)
+
+    return res.status(200).send({message: 'Verify email send success'})
+  } catch (error) {
+    return res.status(400).send({message: 'Verification has already been passed'})
+  }
 }
 
 const ctrl = {
@@ -126,6 +188,8 @@ const ctrl = {
   current,
   logout,
   updateAvatar,
+  verifyEmail,
+  resendVerifyEmail,
 }
 
 export default ctrl

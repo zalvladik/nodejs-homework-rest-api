@@ -1,5 +1,5 @@
 import mw from '../../middlewares/index.js'
-import { joiShecmaAuth } from '../../models/auth.js'
+import { joiShecmaAuth, joiShecmaVerifi } from '../../models/auth.js'
 import express from 'express'
 import ctrl from '../../controllers/auth.js'
 
@@ -18,5 +18,9 @@ router.get ("/current", authenticate, ctrl.current) //✔️
 router.post ("/logout", authenticate, ctrl.logout) //✔️
 
 router.patch ("/avatars", authenticate, upload.single('avatar'), ctrl.updateAvatar) //✔️
+
+router.get ("/verify/:verificationToken", ctrl.verifyEmail )
+
+router.post ("/verify/:verificationToken", validateBody(joiShecmaVerifi), ctrl.resendVerifyEmail )
 
 export default router

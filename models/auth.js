@@ -25,6 +25,14 @@ const authSchema = new Schema({
         type: String,
         required: true,
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      required: [true, 'Verify token is required'],
+    },
     token:String,
   },{versionKey: false})
 
@@ -33,6 +41,10 @@ authSchema.post( "save", handleMongooseError)
 export const joiShecmaAuth = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
+})
+
+export const joiShecmaVerifi = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
 })
 
 export const Auth = model('auth', authSchema)
